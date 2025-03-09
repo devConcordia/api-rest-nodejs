@@ -8,9 +8,14 @@ import JSONWebToken from '../auth/JSONWebToken.mjs';
  */
 export default class RequestHelper {
 	
-	constructor( request, body ) {
+	/** 
+	 *	
+	 *	
+	 */
+	constructor( request, enpointPath, body ) {
 		
 		this.request = request;
+		this.enpointPath = enpointPath;
 		this.body = body;
 		
 	}
@@ -34,6 +39,7 @@ export default class RequestHelper {
 	}
 	
 	
+	
 	getBodyData() {
 		
 		let headers = this.request.headers;
@@ -43,7 +49,7 @@ export default class RequestHelper {
 			if( headers['content-type'] == 'application/json' ) {
 				try {
 					
-					return JSON.parse( output )
+					return JSON.parse( output );
 					
 				} catch(err) {
 					
@@ -60,9 +66,22 @@ export default class RequestHelper {
 	
 	getPathData() {
 		
-		let url = decodeURI( this.request.url ).replace(/\?(.*)$/, "").replace(/\#(.*)$/, "");
+		let output = new Object();
 		
-		return url.split(/\//).filter(e=>e!='');
+		let shape = this.enpointPath.replace(/\?(.*)$/, "").replace(/\#(.*)$/, "").split(/\//).filter(e=>e!='');
+		
+		let url = decodeURI( this.request.url )
+					.replace(/\?(.*)$/, "").replace(/\#(.*)$/, "")
+					.split(/\//).filter(e=>e!='');
+		
+		for( let i = 0; i < shape.length; i++ ) {
+			
+			if( (/^\{.*\}$/).test( shape[i] ) ) 
+				output[ shape[i].replace(/[\{\}]/g, '') ] = url[i];
+			
+		}
+		
+		return output;
 		
 	}
 	

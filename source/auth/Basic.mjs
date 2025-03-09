@@ -22,19 +22,23 @@ export default class Basic {
 		
 	}
 	
-	static From( input ) {
+	static From( authorization ) {
 		
-		let auth_data = input.split(" ");
-		
-		/// verifica se o scheme é do tipo `Basic`
-		/// caso não seja, encerra a requisição
-		if( auth_data[0].toLowerCase() == "basic" ) {
+		if( typeof authorization == 'string' ) {
 			
-			/// extrai credenciais
-			let data = Buffer.from( auth_data[1], 'base64' ).toString();
+			let auth_data = authorization.split(" ");
 			
-			return new Basic( ...data.split(/:(.+)/, 2) );
-		
+			/// verifica se o scheme é do tipo `Basic`
+			/// caso não seja, encerra a requisição
+			if( auth_data[0].toLowerCase() == "basic" ) {
+				
+				/// extrai credenciais
+				let data = Buffer.from( auth_data[1], 'base64' ).toString();
+				
+				return new Basic( ...data.split(/:(.+)/, 2) );
+			
+			}
+			
 		}
 		
 		return null;

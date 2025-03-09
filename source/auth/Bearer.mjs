@@ -28,12 +28,16 @@ export default class Bearer {
 	 */
 	static From( authorization ) {
 		
-		let auth_data = authorization.split(" ");
-		
-		/// verifica se o scheme é do tipo `Bearer`
-		/// caso não seja, encerra a requisição
-		if( auth_data[0].toLowerCase() == "bearer" )
-			return new Bearer( Buffer.from( auth_data[1], 'base64' ).toString() );
+		if( typeof authorization == 'string' ) {
+			
+			let auth_data = authorization.split(" ");
+			
+			/// verifica se o scheme é do tipo `Bearer`
+			/// caso não seja, encerra a requisição
+			if( auth_data[0].toLowerCase() == "bearer" )
+				return new Bearer( Buffer.from( auth_data[1], 'base64' ).toString() );
+			
+		}
 		
 		return null;
 		

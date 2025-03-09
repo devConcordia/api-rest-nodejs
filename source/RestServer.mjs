@@ -11,10 +11,17 @@ import Endpoint from './Endpoint.mjs';
 
 /** RestServer
  *	
+ *	RFC 9110 - HTTP methods, status code, and headers
+ *	RFC 3986 - URI (Uniform Resource Identifier) 
+ *	RFC 6454 - CORS (Cross-Origin Resource Sharing)
+ *	RFC 5988 - HATEOAS (Hypermedia as the Engine of Application State)
+ *	
+ *	When create a rest server, consider the [Open AIP Specification](https://swagger.io/specification/)
+ *	
  */
 export default class RestServer {
 	
-	constructor( host = "127.0.0.1", cert, key ) {
+	constructor( host = "127.0.0.1", cert, key, cors = [] ) {
 		
 		let instance = http;
 		let port = 80;
@@ -85,11 +92,18 @@ export default class RestServer {
 			server.addListener("request", function( request, response ) {
 				
 				/// debug
-				console.log( request.method, request.url );
+				console.log( request.method, request.headers.origin, request.url );
+			//	console.log( request );
+			//	console.log( request.client.servername );
+			//	console.log( request.headers.origin );
 				
 				/// set default header
 				for( let name in header )
 					response.setHeader( name, header[name] );
+				
+			//	if( cors.includes( request.headers.origin ) ) 
+			//		response.setHeader( 'Access-Control-Allow-Origin', request.headers.origin );
+				
 				
 				///
 				let body_data = "";
@@ -101,14 +115,15 @@ export default class RestServer {
 					/// get enpoint
 					let endpoint = getEndpoint( request.url );
 					
+					/// 
+					/// the endpoint.path is needed in `RequestHelper.getPathData`
 					///
+					let req = new RequestHelper( request, endpoint.path, body_data );
 					let res = new ResponseHelper( response );
 					
 					/// check if endpoint is active
 					if( !endpoint )
 						return res.replyError( 404, "Not Found", "The requested resource was not found on this server." );
-					
-					let req = new RequestHelper( request, body_data );
 					
 					///
 					endpoint.dispatch( request.method, req, res );
@@ -153,3 +168,4 @@ export default class RestServer {
 	}
 	
 }
+

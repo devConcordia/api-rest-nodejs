@@ -1,7 +1,6 @@
 
 import crypto from 'crypto';
 
-
 /** base64url_encode
  *	
  *		Replaces + by - (minus)
@@ -43,21 +42,36 @@ function json_decode( input ) {
 	
 }
 
-/** verifyHMAC
- *
- *	 Verifica se um HMAC recebido é válido
+/** getHMAC
+ *	
  *
  * @param {String} secretKey
  * @param {String} message
- * @param {String} receivedHmac
  * @param {String} hashType
  * @return {Boolean}
  */
-function verifyHMAC( secretKey, message, receivedHmac, hashType = 'sha256' ) {
+function getHmac( hashType, secretKey, message ) {
     
-	const expectedHmac = crypto.createHmac( hashType, secretKey ).update( message ).digest();
+	return crypto.createHmac( hashType, secretKey ).update( message ).digest('base64');
 	
-	return crypto.timingSafeEqual( Buffer.from( receivedHmac ), expectedHmac );
+	/*
+	const expectedHmac = crypto.createHmac( hashType, secretKey ).update( message ).digest().toString('base64');
+
+	console.log( 'verifyHMAC' )
+	console.log( receivedHmac )
+	console.log( expectedHmac )
+	console.log( '' )
+	
+	return receivedHmac == expectedHmac;
+/**/
+//	const expectedHmac = crypto.createHmac( hashType, secretKey ).update( message ).digest();
+//	
+//	console.log( 'verifyHMAC' )
+//	console.log( receivedHmac )
+//	console.log( expectedHmac )
+//	console.log( '' )
+//	
+//	return crypto.timingSafeEqual( Buffer.from( receivedHmac ), expectedHmac );
 	
 }
 
@@ -79,34 +93,25 @@ function verifySignature( publicKey, data, signature, hashType = 'sha256' ) {
 	
 }
 
-
-/** JSONWebToken
- *	
- *	@ref https://datatracker.ietf.org/doc/html/rfc6750
- *	
- *	Este método é mais comumente associado ao protocolo OAuth 2.0,
- *	do qual são utilizados os JSONWebToken e JSONWebSignature
- *	O cliente recebe um token de acesso (Bearer token) após a
- * 	autenticação bem-sucedida com um servidor de autorização.
- *	
- *	O token é então enviado no cabeçalho Authorization como Bearer <token>
- *	
- *		Authorization: Bearer base64url_encode( HEAD ) . base64url_encode( PAYLOAD ) . base64url_encode( SIGNATURE )
+/** JsonWebToken
  *	
  */
-export default class JSONWebToken {
+export default class JsonWebToken {
 	
 	constructor( token ) {
 		
-		/// para a plataforma VirtualID, o JSONWebToken 
-		/// deve estar codificado em base64
 		token = token.split('.');
 		
 		this.token = token;
 		
 		this.head = json_decode( base64url_decode( token[0] ) );
 		this.payload = json_decode( base64url_decode( token[1] ) );
-		this.signature = token[2];
+		
+		/// convert base64url to base64 (replaces `-_` to `+/`)
+		let sign = token[2].replace(/\-/g, '+').replace(/\_/g, '/');
+		
+		/// add base64 padding
+		this.signature = sign + '='.repeat((4 - (sign.length % 4)) % 4);
 		
 	}
 	
@@ -118,10 +123,6 @@ export default class JSONWebToken {
 	 */
 	verifySign( key, alg = '' ) {
 		
-		let sign = base64url_decode( this.signature );
-		
-		let data = this.token[0] +"."+ this.token[1];
-		
 		/// 
 		if( alg == '' ) 
 			alg = this.head.alg;
@@ -129,19 +130,21 @@ export default class JSONWebToken {
 		///
 		let hashType = "sha"+ alg.substring( 2 );
 		
+		let data = this.token[0] +"."+ this.token[1];
+		
 		///
 		switch( alg ) {
 			
 			case 'HS256':
 			case 'HS384':
 			case 'HS512':
-				return verifyHMAC( key, data, sign, hashType );
+				return getHmac( hashType, key, data ) == this.signature;
 				break;
 			
 			case 'RS256':
 			case 'RS384':
 			case 'RS512':
-				return verifySignature( key, data, sign, hashType );
+				return verifySignature( key, data, this.signature, hashType );
 				break;
 			
 		}
@@ -156,12 +159,16 @@ export default class JSONWebToken {
 	 */
 	static From( authorization ) {
 		
-		let auth_data = authorization.split(" ");
+		if( typeof authorization == 'string' ) {
+			
+			let auth_data = authorization.split(" ");
+			
+			/// verifica se o scheme é do tipo `Bearer`
+			/// caso não seja, encerra a requisição
+			if( auth_data[0].toLowerCase() == "bearer" )
+				return new JsonWebToken( Buffer.from( auth_data[1], 'base64' ).toString() );
 		
-		/// verifica se o scheme é do tipo `Bearer`
-		/// caso não seja, encerra a requisição
-		if( auth_data[0].toLowerCase() == "bearer" )
-			return new JSONWebToken( Buffer.from( auth_data[1], 'base64' ).toString() );
+		}
 		
 		return null;
 		

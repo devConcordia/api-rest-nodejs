@@ -22,12 +22,18 @@ export default class Endpoint {
 	
 	dispatch( method, req, res ) {
 		
+		let auth = null;
+		
+		///
+		/// converts a METHOD to getMethod
+		/// 
 		const key = 'on'+ capitalize( method );
+		
 		const handler = this[ key ];
 		
 		if( typeof handler == 'function' ) {
 			
-			handler.call( this, req, res );
+			handler.call( this, req, res, auth );
 			
 		} else {
 			
@@ -37,21 +43,7 @@ export default class Endpoint {
 		
 	}
 	
-	on( method, handler ) {
-		
-		const key = 'on'+ capitalize( method );
-		
-		if( typeof handler == 'function' ) {
-			
-			this[ key ] = handler;
-			
-		} else {
-			
-			delete this[ key ];
-			
-		}
-		
-	}
+	/// verifyAuth( req )
 	
 	/// onGet( req, res ) { ... }
 	/// onPost( req, res ) { ... }
