@@ -104,7 +104,7 @@ export default class JsonWebToken {
 		
 		this.token = token;
 		
-		this.head = json_decode( base64url_decode( token[0] ) );
+		this.header = json_decode( base64url_decode( token[0] ) );
 		this.payload = json_decode( base64url_decode( token[1] ) );
 		
 		/// convert base64url to base64 (replaces `-_` to `+/`)
@@ -125,7 +125,7 @@ export default class JsonWebToken {
 		
 		/// 
 		if( alg == '' ) 
-			alg = this.head.alg;
+			alg = this.header.alg;
 		
 		///
 		let hashType = "sha"+ alg.substring( 2 );

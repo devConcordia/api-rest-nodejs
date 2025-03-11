@@ -4,21 +4,28 @@ import fs from 'fs';
 import RestServer from '../../../source/RestServer.mjs';
 import Endpoint from '../../../source/Endpoint.mjs'
 
+/// 
+/// For testing purposes, the auth.json contain user credentials to verify the JWT
+/// 
+const users_list = JSON.parse( fs.readFileSync("./auth.json") );
 
-
-
-/// hmac key  of client
-const JWT_KEY = "123456";
 
 /**	verifyAuth
  *	
  */
 function verifyAuth( req, res ) {
-		
+	
 	let auth = req.getJWTAuth();
 	
-	if( auth && auth.verifySign( JWT_KEY ) )
-		return auth;
+	if( auth ) {
+		
+		let user = auth.header.sub;
+		
+		if( user in users_list )
+			if( auth.verifySign( users_list[ user ] ) )
+				return auth;
+		
+	}
 	
 	res.replyError( 401, "Unauthorized", "The request require authentication" );
 	
@@ -30,7 +37,7 @@ function verifyAuth( req, res ) {
  */
 class Polls extends Endpoint {
 	
-	/// lista de enquetes
+	/// get poll lost
 	onGet( req, res ) {
 		
 		let { id } = req.getPathData();
@@ -38,7 +45,7 @@ class Polls extends Endpoint {
 		if( !id ) {
 			
 			let files = fs.readdirSync( './data/' )
-				.filter(e => !e.endsWith('.votes.json'))
+				.filter(e => !e.endsWith('.votes.csv'))
 				.map(e=>e.replace('.json', ''));
 			
 			res.replyJson(200, files );
@@ -53,9 +60,7 @@ class Polls extends Endpoint {
 			
 			} else {
 				
-				res.replyJson(200, {
-					"message": "Poll '"+ id +"' not founded"
-				});
+				res.replyError(404, "Not Found", "Poll '"+ id +"' not found");
 		
 			}
 			
@@ -63,14 +68,33 @@ class Polls extends Endpoint {
 		
 	}
 	
-	/// Cria uma nova enquete.
+	/// create a new poll
 	onPost( req, res ) {
 		
+		/// if has't a auth, the request will respond with a 401 error 
 		let auth = verifyAuth( req, res );
 		
-		res.replyJson(201, {
-			date: Date.now()
-		});
+		///
+		let id = Date.now();
+		let data = req.getBodyData();
+		
+		let poll = new Object;
+			poll.title = data.title;
+			poll.description = data.description;
+			poll.form = new Array(); 
+			
+		for( let item in data.form ) {
+			
+			let question = item.question,
+				options = item.options;
+			
+			poll.form.push({ question, options });
+			
+		}
+		
+		fs.writeFileSync( './data/'+ id +'.json', JSON.stringfy( poll, null, '\t' ) );
+		
+		res.replyJson(201, { id });
 		
 	}
 	
@@ -81,44 +105,42 @@ class Polls extends Endpoint {
  */
 class Vote extends Endpoint {
 	
-	/// Obtém os resultados de uma enquete.
+	/// get a poll results
 	onGet( req, res ) {
 		
 		let { id } = req.getPathData();
 		
-		let pathVotes = './data/'+ id +'.votes.json';
+		let pathVotes = './data/'+ id +'.votes.csv';
 		
 		if( fs.existsSync( pathVotes ) ) {
 			
-			res.reply(200, 'application/json', fs.readFileSync(pathVotes) );
+			res.reply(200, 'text/plain', fs.readFileSync(pathVotes) );
 			
 		} else {
 			
-			return res.replyError(404, "Not Found", "Poll votes not found" );
+			res.replyError(404, "Not Found", "Poll votes not found" );
 			
 		}
 		
 	}
 	
-	/// Registra um voto na enquete.
+	/// add vote to a poll
 	onPost( req, res ) {
 		
 		let { id } = req.getPathData();
 		
-		let pathVotes = './data/'+ id +'.votes.json';
+		let pathVotes = './data/'+ id +'.votes.csv';
 		
+		/// check if poll id exists
 		if( fs.existsSync( './data/'+ id +'.json' ) ) {
 			
-			let data = fs.existsSync( pathVotes )? JSON.parse( fs.readFileSync(pathVotes) ) : [];
-				data.push( req.getBodyData() );
-			
-			fs.writeFileSync( pathVotes, JSON.stringify(data ) );
+			fs.appendFileSync( pathVotes, req.getBodyData().join(';') +'\n' );
 			
 			res.replyJson(204, '{}');
 			
 		} else {
 			
-			return res.replyError(404, "Not Found", "Poll not found" );
+			res.replyError(404, "Not Found", "Poll not found" );
 			
 		}
 		
@@ -133,18 +155,9 @@ class Vote extends Endpoint {
 const privateKey = fs.readFileSync('./setup/private.key').toString();
 const certificate = fs.readFileSync('./setup/certificate.cer').toString();
 
-
-///
+/// 
+/// 	add 
+/// 
 let rest = new RestServer( 'demo.alpha', certificate, privateKey );
 	rest.append( new Polls( '/polls/{id}' ) );
 	rest.append( new Vote( '/polls/{id}/vote' ) );
-
-
-
-
-/* 
-eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDE1MjcxMTUzOTMsImlhdCI6MTc0MTUyNzExMjM5M30.
-
-
-
-*/
