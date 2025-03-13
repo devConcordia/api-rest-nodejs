@@ -20,6 +20,12 @@ export default class RequestHelper {
 		
 	}
 	
+	getURL() {
+		
+		return this.request.url;
+		
+	}
+	
 	getBasicAuth() {
 		
 		return Basic.From( this.request.headers.authorization );
@@ -37,7 +43,6 @@ export default class RequestHelper {
 		return JSONWebToken.From( this.request.headers.authorization );
 		
 	}
-	
 	
 	
 	getBodyData() {

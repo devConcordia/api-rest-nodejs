@@ -14,9 +14,10 @@ function capitalize( input ) {
  */
 export default class Endpoint {
 	
-	constructor( path ) {
+	constructor( path, isDefault = false ) {
 		
 		this.path = path;
+		this.isDefault = isDefault;
 		
 	}
 	

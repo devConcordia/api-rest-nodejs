@@ -59,12 +59,12 @@ export default class RestServer {
 			
 			let input = path.replace(/\?(.*)$/, "").replace(/\#(.*)$/, "").split(/\//).filter(e=>e!='');
 			
+			let output = null;
+			
 			///
 			for( let e of endpoints ) {
 				
 				let base = e.path.split(/\//).filter(e => e!='');
-				
-			//	if( base.length != input.length ) continue;
 				
 				let flag = true;
 				
@@ -79,11 +79,19 @@ export default class RestServer {
 					
 				}
 				
-				if( flag ) return e;
+				if( flag ) {
+					
+					return e;
+					
+				} else {
+					
+					if( !output && e.isDefault ) output = e;
+					
+				}
 				
 			}
 			
-			return null;
+			return output;
 			
 		};
 		
@@ -92,7 +100,8 @@ export default class RestServer {
 			server.addListener("request", function( request, response ) {
 				
 				/// debug
-				console.log( request.method, request.headers.origin, request.url );
+			//	console.log( request.method, request.headers.origin, request.url );
+			//	console.log( request.method, request.url );
 			//	console.log( request );
 			//	console.log( request.client.servername );
 			//	console.log( request.headers.origin );
@@ -115,15 +124,14 @@ export default class RestServer {
 					/// get enpoint
 					let endpoint = getEndpoint( request.url );
 					
-					/// 
-					/// the endpoint.path is needed in `RequestHelper.getPathData`
-					///
-					let req = new RequestHelper( request, endpoint.path, body_data );
 					let res = new ResponseHelper( response );
 					
 					/// check if endpoint is active
 					if( !endpoint )
 						return res.replyError( 404, "Not Found", "The requested resource was not found on this server." );
+					
+					/// the endpoint.path is needed in `RequestHelper.getPathData`
+					let req = new RequestHelper( request, endpoint.path, body_data );
 					
 					///
 					endpoint.dispatch( request.method, req, res );
@@ -139,6 +147,7 @@ export default class RestServer {
 		this.endpoints = endpoints;
 		this.header = header;
 		this.server = server;
+		this.endpointDefault = null;
 		
 		///
 		console.log( 'server running at '+ host +':'+ port );
@@ -148,12 +157,15 @@ export default class RestServer {
 	/** append
 	 *	
 	 *	@param {Endpoint} endpoint
+	 *	@param {Boolean} isDefault
 	 */
-	append( endpoint ) {
+	append( endpoint, isDefault = false ) {
 		
-		if( endpoint instanceof Endpoint )
-			if( !this.endpoints.includes(endpoint) )
+		if( endpoint instanceof Endpoint ) {
+			if( !this.endpoints.includes(endpoint) ) {
 				this.endpoints.push( endpoint );
+			}
+		}
 		
 	}
 	
