@@ -158,6 +158,6 @@ const certificate = fs.readFileSync('./setup/certificate.cer').toString();
 /// 
 /// 	add 
 /// 
-let rest = new RestServer( 'demo.alpha', certificate, privateKey );
+let rest = new RestServer( 'demo.alpha', 80, certificate, privateKey );
 	rest.append( new Polls( '/polls/{id}' ) );
 	rest.append( new Vote( '/polls/{id}/vote' ) );

@@ -21,15 +21,16 @@ import Endpoint from './Endpoint.mjs';
  */
 export default class RestServer {
 	
-	constructor( host = "127.0.0.1", cert, key ) {
+	constructor( host, port, cert, key ) {
+		
+		if( !host ) host = '127.0.0.1';
 		
 		let instance = http;
-		let port = 80;
 		let options = new Object;
 		
 		if( cert && key ) {
 			
-			port = 443;
+			if( !port ) port = 443;
 			
 			instance = https;
 			
@@ -37,6 +38,10 @@ export default class RestServer {
 			options.cert = cert;
 			options.requestCert = false;
 			options.rejectUnauthorized = true;
+			
+		} else {
+			
+			if( !port ) port = 80;
 			
 		}
 		

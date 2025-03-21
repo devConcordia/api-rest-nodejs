@@ -99,7 +99,7 @@ const privateKey = fs.readFileSync('./setup/private.key').toString();
 const certificate = fs.readFileSync('./setup/certificate.cer').toString();
 
 /// 
-let rest = new RestServer( 'demo.alpha', certificate, privateKey );
+let rest = new RestServer( 'demo.alpha', 80, certificate, privateKey );
 	rest.append( new Accounts( '/accounts' ) );
 
 
