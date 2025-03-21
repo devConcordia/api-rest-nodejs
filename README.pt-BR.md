@@ -16,40 +16,40 @@ que irão auxiliar nas operações de obter os dados da requisição e construir
 import Endpoint from './source/Endpoint.mjs'
 
 class HelloWorldEndpoint extends Endpoint {
-	
-	/** GET
-	 *	
-	 *	@param {RequestHelper} req
-	 *	@param {ResponseHelper} res
-	 */
-	onGet( req, res ) {
-		
-		let { name } = req.getPathData();
-		
-		/// response a OK, 200 http request
-		res.replyJson(200, { message: 'Hello '+ name });
-		
-	}
-	
-	/** POST
-	 *	
-	 *	@param {RequestHelper} req
-	 *	@param {ResponseHelper} res
-	 */
-	onPost( req, res ) {
-		
-		let { name } = req.getPathData();
-		
-		let data = req.getBodyData();
-		
-		/// response a OK, 200 http request
-		res.replyJson(200, { message: name +' has uload a data' });
-		
-	}
-	
-//	onPut( req, res ) { }
-//	onPatch( req, res ) { }
-//	onDelete( req, res ) { }
+    
+    /** GET
+     *    
+     *  @param {RequestHelper} req
+     *  @param {ResponseHelper} res
+     */
+    onGet( req, res ) {
+        
+        let { name } = req.getPathData();
+        
+        /// response a OK, 200 http request
+        res.replyJson(200, { message: 'Hello '+ name });
+        
+    }
+    
+    /** POST
+     *    
+     *  @param {RequestHelper} req
+     *  @param {ResponseHelper} res
+     */
+    onPost( req, res ) {
+        
+        let { name } = req.getPathData();
+        
+        let data = req.getBodyData();
+        
+        /// response a OK, 200 http request
+        res.replyJson(200, { message: name +' has uload a data' });
+        
+    }
+    
+//    onPut( req, res ) { }
+//    onPatch( req, res ) { }
+//    onDelete( req, res ) { }
 
 }
 
@@ -94,22 +94,22 @@ Se a verificação falhar, será respondido um erro com o código 401 (Unauthori
 const KEY_HMAC = "...";
 
 class ExampleEndpoint extends Endpoint {
-	
-	onPost( req, res ) {
-	
-		let auth = req.getJWTAuth();
-		
-		if( auth && auth.verifySign( KEY_HMAC ) ) {
-			
-			/// authenticated
-			
-		} else {
-			
-			res.replyError( 401, "Unauthorized", "The request require authentication" );
-			
-		}
-		
-	}
+    
+    onPost( req, res ) {
+    
+        let auth = req.getJWTAuth();
+        
+        if( auth && auth.verifySign( KEY_HMAC ) ) {
+            
+            /// authenticated
+            
+        } else {
+            
+            res.replyError( 401, "Unauthorized", "The request require authentication" );
+            
+        }
+        
+    }
 
 }
 
