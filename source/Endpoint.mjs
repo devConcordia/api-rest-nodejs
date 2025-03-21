@@ -14,6 +14,11 @@ function capitalize( input ) {
  */
 export default class Endpoint {
 	
+	/** 
+	 *	
+	 *	@param {String} path
+	 *	@param {Boolean} isDefault
+	 */
 	constructor( path, isDefault = false ) {
 		
 		this.path = path;
@@ -26,10 +31,11 @@ export default class Endpoint {
 		let auth = null;
 		
 		///
-		/// converts a METHOD to getMethod
+		/// converts a `METHOD` to `getMethod`
 		/// 
 		const key = 'on'+ capitalize( method );
 		
+		///
 		const handler = this[ key ];
 		
 		if( typeof handler == 'function' ) {
@@ -44,8 +50,6 @@ export default class Endpoint {
 		
 	}
 	
-	/// verifyAuth( req )
-	
 	/// onGet( req, res ) { ... }
 	/// onPost( req, res ) { ... }
 	/// onPut( req, res ) { ... }
@@ -59,7 +63,8 @@ export default class Endpoint {
 	 */
 	onOptions( req, res ) {
 		
-		res.reply( 204, 'text/plain', '' );
+		///
+		res.replyNoContent();
 		
 	}
 	

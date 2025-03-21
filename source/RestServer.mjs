@@ -21,7 +21,7 @@ import Endpoint from './Endpoint.mjs';
  */
 export default class RestServer {
 	
-	constructor( host = "127.0.0.1", cert, key, cors = [] ) {
+	constructor( host = "127.0.0.1", cert, key ) {
 		
 		let instance = http;
 		let port = 80;
@@ -62,9 +62,9 @@ export default class RestServer {
 			let output = null;
 			
 			///
-			for( let e of endpoints ) {
+			for( let endpoint of endpoints ) {
 				
-				let base = e.path.split(/\//).filter(e => e!='');
+				let base = endpoint.path.split(/\//).filter(e => e!='');
 				
 				let flag = true;
 				
@@ -81,11 +81,12 @@ export default class RestServer {
 				
 				if( flag ) {
 					
-					return e;
+					return endpoint;
 					
 				} else {
 					
-					if( !output && e.isDefault ) output = e;
+					if( !output && endpoint.isDefault ) 
+						output = endpoint;
 					
 				}
 				
@@ -99,20 +100,9 @@ export default class RestServer {
 		let server = instance.createServer( options );
 			server.addListener("request", function( request, response ) {
 				
-				/// debug
-			//	console.log( request.method, request.headers.origin, request.url );
-			//	console.log( request.method, request.url );
-			//	console.log( request );
-			//	console.log( request.client.servername );
-			//	console.log( request.headers.origin );
-				
 				/// set default header
 				for( let name in header )
 					response.setHeader( name, header[name] );
-				
-			//	if( cors.includes( request.headers.origin ) ) 
-			//		response.setHeader( 'Access-Control-Allow-Origin', request.headers.origin );
-				
 				
 				///
 				let body_data = "";
