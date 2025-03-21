@@ -1,13 +1,15 @@
 
 # API REST com Node.js
 
-This project is a simple implementation of a REST API with Node.js.
+Esse projeto é uma implementação simples de uma API REST com Node.js.
 
 ## Exemplo
 
-Each endpoint must be created as an extension of the [Endpoint]() class, and the methods must be defined as shown in the following script.
+Cada endpoint deve ser criado como extensão da classe [Endpoint]() e os métodos
+devem ser defindos como no script a seguir.
 
-Each method receives a [RequestHelper]() and [ResponseHelper]() as arguments, which help retrieve request data and construct an appropriate response.
+Cada metodo recebe como argumento um [RequestHelper]() e um [ResponseHelper](),
+que irão auxiliar nas operações de obter os dados da requisição e construir uma resposta adequada.
 
 ```javascript
 
@@ -53,26 +55,25 @@ class HelloWorldEndpoint extends Endpoint {
 
 ```
 
-<!-- Após o servidor ser iniciado, adicione uma instância do [Endpoint]() criado ao serviço. -->
-After the server has started, add an instance of the created [Endpoint]() to the service.
+Após o servidor ser iniciado, adicione uma instância do [Endpoint]() criado ao serviço.
 
 ```javascript
 
-/// start server
 const rest = new RestServer( '127.0.0.1', 80 );
 
-/// add a Endpoint defined was default is recommended
+/// é recomendado adicionar um Endpoint definido como padrão
+/// que irá direcionar a requisição caso não indentifique `path` da requisição
 const isDefault = true;
 
-/// create a Endpoint instance
+/// inciando o Endpoint
 const helloWroldEndpoint = new HelloWorldEndpoint( '/api/{name}', isDefault );
 
-/// add endpoint to service
+/// adiciona o endpoint ao serviço
 rest.append( helloWroldEndpoint );
 
 ```
 
-To start a HTTPS server, providing the SSL certificate and private key when create a [RestServer]().
+É possivel iniciar o servidor HTTPS informando o certificado SSL e chave privada.
 
 ```javascript
 const privateKey = fs.readFileSync('./private.key').toString();
@@ -83,10 +84,10 @@ const rest = new RestServer( 'demo.alpha', 443, certificate, privateKey );
 
 ### Authentication 
 
-The `Authentication` can be obtained using the `getBasicAuth()`, `getBearerAuth()` e `getJWTAuth()` methods from [RequestHelper]() - only if provided in the HTTP request headers.
+A `Authentication` pode ser obtida com os métodos `getBasicAuth()`, `getBearerAuth()` e `getJWTAuth()` do [RequestHelper]() - somente se informado no HEAD da requisição Http.
 
-In the following example, try obtain a JsonWebToken (`req.getJWTAuth()`) and the signature is verified using a default HMAC key.
-If the verification fails, an error with the 401 (Unauthorized) code will be responded.
+No exemplo a seguir, obtem o JsonWebToken (`req.getJWTAuth()`) e verfica a assinatura com uma chave padrão HMAC.
+Se a verificação falhar, será respondido um erro com o código 401 (Unauthorized).
 
 ```javascript
 
