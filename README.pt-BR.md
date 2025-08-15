@@ -13,9 +13,9 @@ que irão auxiliar nas operações de obter os dados da requisição e construir
 
 ```javascript
 
-import Endpoint from './source/Endpoint.mjs'
+import REST from './source/index.mjs'
 
-class HelloWorldEndpoint extends Endpoint {
+class HelloWorldEndpoint extends REST.Endpoint {
     
     /** GET
      *    
@@ -59,7 +59,9 @@ Após o servidor ser iniciado, adicione uma instância do [Endpoint]() criado ao
 
 ```javascript
 
-const rest = new RestServer( '127.0.0.1', 80 );
+import REST from './source/index.mjs'
+
+const service = new REST.Service( '127.0.0.1', 80 );
 
 /// é recomendado adicionar um Endpoint definido como padrão
 /// que irá direcionar a requisição caso não indentifique `path` da requisição
@@ -69,7 +71,7 @@ const isDefault = true;
 const helloWroldEndpoint = new HelloWorldEndpoint( '/api/{name}', isDefault );
 
 /// adiciona o endpoint ao serviço
-rest.append( helloWroldEndpoint );
+service.append( helloWroldEndpoint );
 
 ```
 
@@ -79,7 +81,7 @@ rest.append( helloWroldEndpoint );
 const privateKey = fs.readFileSync('./private.key').toString();
 const certificate = fs.readFileSync('./certificate.cer').toString();
 
-const rest = new RestServer( 'demo.alpha', 443, certificate, privateKey );
+const rest = new REST.Service( 'demo.alpha', 443, certificate, privateKey );
 ```
 
 ### Authentication 

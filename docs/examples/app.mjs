@@ -1,11 +1,9 @@
 
 import fs from 'fs';
-
-import RestServer from '../../source/RestServer.mjs';
-import Endpoint from '../../source/Endpoint.mjs'
+import REST from '../../source/index.mjs';
 
 
-class HelloWorldEndpoint extends Endpoint {
+class HelloWorldEndpoint extends REST.Endpoint {
 	
 	/** 
 	 *	
@@ -41,7 +39,7 @@ class HelloWorldEndpoint extends Endpoint {
 const privateKey = fs.readFileSync('./accounts/setup/private.key').toString();
 const certificate = fs.readFileSync('./accounts/setup/certificate.cer').toString();
 
-let rest = new RestServer( 'demo.alpha', certificate, privateKey );
-	rest.append( new HelloWorldEndpoint( '/api/{name}', true ) );
+let service = new REST.Service( 'demo.alpha', certificate, privateKey );
+	service.append( new HelloWorldEndpoint( '/api/{name}', true ) );
 
 

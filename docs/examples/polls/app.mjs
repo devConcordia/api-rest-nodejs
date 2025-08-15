@@ -1,8 +1,7 @@
 
 import fs from 'fs';
 
-import RestServer from '../../../source/RestServer.mjs';
-import Endpoint from '../../../source/Endpoint.mjs'
+import REST from '../../source/index.mjs';
 
 /// 
 /// For testing purposes, the auth.json contain user credentials to verify the JWT
@@ -35,7 +34,7 @@ function verifyAuth( req, res ) {
 /** Polls
  *	
  */
-class Polls extends Endpoint {
+class Polls extends REST.Endpoint {
 	
 	/// get poll lost
 	onGet( req, res ) {
@@ -103,7 +102,7 @@ class Polls extends Endpoint {
 /** Vote
  *	
  */
-class Vote extends Endpoint {
+class Vote extends REST.Endpoint {
 	
 	/// get a poll results
 	onGet( req, res ) {
@@ -158,6 +157,6 @@ const certificate = fs.readFileSync('./setup/certificate.cer').toString();
 /// 
 /// 	add 
 /// 
-let rest = new RestServer( 'demo.alpha', 80, certificate, privateKey );
-	rest.append( new Polls( '/polls/{id}' ) );
-	rest.append( new Vote( '/polls/{id}/vote' ) );
+let service = new REST.Service( 'demo.alpha', 80, certificate, privateKey );
+	service.append( new Polls( '/polls/{id}' ) );
+	service.append( new Vote( '/polls/{id}/vote' ) );

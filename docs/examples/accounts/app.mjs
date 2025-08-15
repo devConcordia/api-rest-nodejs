@@ -1,9 +1,7 @@
 
 import crypto from 'crypto';
 import fs from 'fs';
-
-import RestServer from '../../../source/RestServer.mjs';
-import Endpoint from '../../../source/Endpoint.mjs'
+import REST from '../../source/index.mjs';
 
 /**	getUserID
  *	
@@ -47,7 +45,7 @@ function verifyAuth( req, res ) {
 /** Accounts
  *	
  */
-class Accounts extends Endpoint {
+class Accounts extends REST.Endpoint {
 	
 	/// Sign In
 	onGet( req, res ) {
@@ -99,7 +97,7 @@ const privateKey = fs.readFileSync('./setup/private.key').toString();
 const certificate = fs.readFileSync('./setup/certificate.cer').toString();
 
 /// 
-let rest = new RestServer( 'demo.alpha', 80, certificate, privateKey );
+let rest = new REST.Service( 'demo.alpha', 80, certificate, privateKey );
 	rest.append( new Accounts( '/accounts' ) );
 
 

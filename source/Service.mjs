@@ -9,7 +9,7 @@ import ResponseHelper from './helper/ResponseHelper.mjs';
 
 import Endpoint from './Endpoint.mjs';
 
-/** RestServer
+/** Service
  *	
  *	RFC 9110 - HTTP methods, status code, and headers
  *	RFC 3986 - URI (Uniform Resource Identifier) 
@@ -19,7 +19,7 @@ import Endpoint from './Endpoint.mjs';
  *	When create a rest server, consider the [Open AIP Specification](https://swagger.io/specification/)
  *	
  */
-export default class RestServer {
+export default class Service {
 	
 	constructor( host, port, cert, key ) {
 		

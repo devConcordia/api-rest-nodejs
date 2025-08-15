@@ -11,9 +11,9 @@ Each method receives a [RequestHelper]() and [ResponseHelper]() as arguments, wh
 
 ```javascript
 
-import Endpoint from './source/Endpoint.mjs'
+import REST from './source/index.mjs'
 
-class HelloWorldEndpoint extends Endpoint {
+class HelloWorldEndpoint extends REST.Endpoint {
     
     /** GET
      *    
@@ -58,8 +58,10 @@ After the server has started, add an instance of the created [Endpoint]() to the
 
 ```javascript
 
+import REST from './source/index.mjs'
+
 /// start server
-const rest = new RestServer( '127.0.0.1', 80 );
+const service = new REST.Service( '127.0.0.1', 80 );
 
 /// add a Endpoint defined was default is recommended
 const isDefault = true;
@@ -68,7 +70,7 @@ const isDefault = true;
 const helloWroldEndpoint = new HelloWorldEndpoint( '/api/{name}', isDefault );
 
 /// add endpoint to service
-rest.append( helloWroldEndpoint );
+service.append( helloWroldEndpoint );
 
 ```
 
@@ -78,7 +80,7 @@ To start a HTTPS server, providing the SSL certificate and private key when crea
 const privateKey = fs.readFileSync('./private.key').toString();
 const certificate = fs.readFileSync('./certificate.cer').toString();
 
-const rest = new RestServer( 'demo.alpha', 443, certificate, privateKey );
+const rest = new REST.Service( 'demo.alpha', 443, certificate, privateKey );
 ```
 
 ### Authentication 

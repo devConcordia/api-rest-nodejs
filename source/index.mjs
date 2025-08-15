@@ -1,5 +1,7 @@
 
-import RestServer from './RestServer.mjs';
-import Endpoint from './Endpoint.mjs';
+import Service from './Service.mjs'
 
-export { RestServer, Endpoint };
+import Endpoint from './Endpoint.mjs'
+import Resources from './Resources.mjs'
+
+export { Service, Endpoint, Resources }
